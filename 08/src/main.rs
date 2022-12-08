@@ -9,6 +9,17 @@ fn main() {
         .map(|l| l.chars().map(|c| c.to_digit(10).unwrap()).collect::<Vec<u32>>())
         .collect::<Vec<Vec<u32>>>();
 
+    /*
+     A more efficient solution would be to go through each row and each colum and always remember
+     at what position you saw a tree with a particular height for each of the 9 different heights
+     which would then allow you to directly calculate the visibility/viewing distance from a 
+     for each new tree you see in the direction you came from. This would allow you to only
+     look at a number of trees linear to the number of trees in the input (4 * n).
+
+     ... but Rust is fast and while it's maybe not the most beautiful solution, it's the most
+     straightforward one so i did this for today.
+    */
+
     let mut counter = 0;
     let mut max_scenic_score = 0;
     for y in 0..input.len() {
