@@ -1,4 +1,4 @@
-use std::{fs::read_to_string, str::FromStr, error::Error, string::ParseError, collections::HashSet, hash::Hash};
+use std::{fs::read_to_string, str::FromStr, error::Error, collections::HashSet};
 
 #[derive(Clone, Copy, Debug)]
 enum Direction {
@@ -58,7 +58,7 @@ fn pretty_print(positions: [(i32,i32); 10], min: (i32, i32), max: (i32, i32)) {
 }
 
 fn main() {
-    let input_str = read_to_string("input.txt").unwrap();
+    let input_str = read_to_string("aoc_2022_day09_large-2.in").unwrap();
 
     let inputs: Vec<Instruction> = input_str.lines()
         .filter(|l| !l.is_empty())
