@@ -90,7 +90,7 @@ fn main() {
         .collect::<Vec<(Item, Item)>>();
 
     let result1 = input.iter().enumerate()
-        .filter(|(i, (i1, i2))| compare_items(i1, i2).unwrap())
+        .filter(|(_, (i1, i2))| compare_items(i1, i2).unwrap())
         .map(|(i, _)| i+1)
         .sum::<usize>();
 
