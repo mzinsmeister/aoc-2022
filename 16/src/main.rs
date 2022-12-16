@@ -36,6 +36,8 @@ impl Search {
     }
 
     fn search2(&mut self, current_flow: usize, current_pos: (u16, u16), current_time: u16, used_valves: u64, last: (u16, u16)) -> usize {
+        // This is a combination between branch&bound and memoization/dp.
+        // There surely are better and much faster solutions but this at least works in somewhat reasonable time
         if let Some(v) = self.memoization_table.get(&(current_pos, current_time, used_valves)) {
             return *v;
         }
