@@ -113,7 +113,7 @@ fn search(blueprint: &Blueprint, state: State, current_max: u16, mem_table: &mut
         }
         try_all = false;
     }
-    if blueprint.can_produce_obsidian_robot(&state) && (state.time_left - 1) * blueprint.geode_obsidian > state.obsidian {
+    if blueprint.can_produce_obsidian_robot(&state) && state.obsidian_robots < blueprint.geode_obsidian {
         let mut new_state = state.clone();
         new_state.time_step();
         new_state.build_obsidian_robot(blueprint);
@@ -122,7 +122,7 @@ fn search(blueprint: &Blueprint, state: State, current_max: u16, mem_table: &mut
             max_geodes =m;
         }
     }
-    if state.time_left >= 2 && blueprint.can_produce_clay_robot(&state) && (state.time_left - 2) * blueprint.obsidian_clay > state.clay {
+    if state.time_left >= 2 && blueprint.can_produce_clay_robot(&state) && state.clay_robots < blueprint.obsidian_clay{
         let mut new_state = state.clone();
         new_state.time_step();
         new_state.build_clay_robot(blueprint);
@@ -131,7 +131,7 @@ fn search(blueprint: &Blueprint, state: State, current_max: u16, mem_table: &mut
             max_geodes =m;
         }
     }
-    if state.time_left >= 1 && blueprint.can_produce_ore_robot(&state) && (state.time_left - 1) * blueprint.clay_ore.max(blueprint.obsidian_ore).max(blueprint.geode_ore) > state.ore {
+    if state.time_left >= 1 && blueprint.can_produce_ore_robot(&state) && state.ore_robots < blueprint.clay_ore.max(blueprint.obsidian_ore).max(blueprint.geode_ore)  {
         let mut new_state = state.clone();
         new_state.time_step();
         new_state.build_ore_robot(blueprint);
