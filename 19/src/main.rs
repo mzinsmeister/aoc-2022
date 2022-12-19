@@ -91,7 +91,7 @@ impl State {
     }
 }
 
-fn search(blueprint: &Blueprint, state: State, current_max: u16, mem_table: &mut HashMap<MemState, u16>) -> u16 {
+fn search(blueprint: &Blueprint, state: State, current_max: u16,mem_table: &mut HashMap<MemState, u16>, mut banned: (bool, bool, bool, bool)) -> u16 {
     if state.time_left == 0 {
         return state.geode;
     }
@@ -103,47 +103,59 @@ fn search(blueprint: &Blueprint, state: State, current_max: u16, mem_table: &mut
     }
     let mut max_geodes = 0;
     let mut try_all = true;
-    if blueprint.can_produce_geode_robot(&state) {
+    if !banned.0 && blueprint.can_produce_geode_robot(&state) {
         let mut new_state = state.clone();
         new_state.time_step();
         new_state.build_geode_robot(blueprint);
-        let m = search(blueprint, new_state, max_geodes, mem_table);
+        let m = search(blueprint, new_state, max_geodes, mem_table, banned);
         if m > max_geodes {
             max_geodes =m;
+        }
+        if m < current_max || m < max_geodes {
+            banned.0 = true;
         }
         try_all = false;
     }
-    if blueprint.can_produce_obsidian_robot(&state) && state.obsidian_robots < blueprint.geode_obsidian {
+    if !banned.1 && blueprint.can_produce_obsidian_robot(&state) && state.obsidian_robots < blueprint.geode_obsidian {
         let mut new_state = state.clone();
         new_state.time_step();
         new_state.build_obsidian_robot(blueprint);
-        let m = search(blueprint, new_state, max_geodes, mem_table);
+        let m = search(blueprint, new_state, max_geodes, mem_table, banned);
         if m > max_geodes {
             max_geodes =m;
         }
+        if m < current_max || m < max_geodes {
+            banned.1 = true;
+        }
     }
-    if state.time_left >= 2 && blueprint.can_produce_clay_robot(&state) && state.clay_robots < blueprint.obsidian_clay{
+    if !banned.2 && state.time_left >= 2 && blueprint.can_produce_clay_robot(&state) && state.clay_robots < blueprint.obsidian_clay{
         let mut new_state = state.clone();
         new_state.time_step();
         new_state.build_clay_robot(blueprint);
-        let m = search(blueprint, new_state, max_geodes, mem_table);
+        let m = search(blueprint, new_state, max_geodes, mem_table, banned);
         if m > max_geodes {
             max_geodes =m;
         }
+        if m < current_max || m < max_geodes {
+            banned.2 = true;
+        }
     }
-    if state.time_left >= 1 && blueprint.can_produce_ore_robot(&state) && state.ore_robots < blueprint.clay_ore.max(blueprint.obsidian_ore).max(blueprint.geode_ore)  {
+    if !banned.3 && state.time_left >= 1 && blueprint.can_produce_ore_robot(&state) && state.ore_robots < blueprint.clay_ore.max(blueprint.obsidian_ore).max(blueprint.geode_ore)  {
         let mut new_state = state.clone();
         new_state.time_step();
         new_state.build_ore_robot(blueprint);
-        let m = search(blueprint, new_state, max_geodes, mem_table);
+        let m = search(blueprint, new_state, max_geodes, mem_table, banned);
         if m > max_geodes {
             max_geodes =m;
+        }
+        if m < current_max || m < max_geodes {
+            banned.3 = true;
         }
     }
     if try_all {
         let mut new_state = state.clone();
         new_state.time_step();
-        let m = search(blueprint, new_state, max_geodes, mem_table);
+        let m = search(blueprint, new_state, max_geodes, mem_table, banned);
         if m > max_geodes {
             max_geodes =m;
         }
@@ -194,7 +206,7 @@ fn main() {
             geode: 0 
         };
         let mut mem_table = HashMap::new();
-        let bmax = search(&blueprint, state, 0, &mut mem_table);
+        let bmax = search(&blueprint, state, 0, &mut mem_table, (false, false, false, false));
         if bmax > max {
             max = bmax;
             max_blueprint = Some(*blueprint);
@@ -220,7 +232,7 @@ fn main() {
             geode: 0 
         };
         let mut mem_table = HashMap::new();
-        let bmax = search(&blueprint, state, 0, &mut mem_table);
+        let bmax = search(&blueprint, state, 0, &mut mem_table, (false, false, false, false));
         if bmax >= max {
             max = bmax;
             max_blueprint = Some(*blueprint);
