@@ -30,13 +30,14 @@ fn printmap(map: &Vec<(usize, Vec<bool>)>, pos: (usize, usize), dir: (i32, i32))
 
 fn rotate_coords_right(mut curr: (usize, usize), size: usize, times: usize) -> (usize, usize) {
     for _ in 0..times {
-        curr = (curr.1, (-(curr.0 as i64)).rem_euclid(size as i64) as usize)
+        let new_x = size-1-curr.1;
+        curr = (new_x, curr.0)
     }
     curr
 }
 
 fn main() {
-    let input_str = read_to_string("demo.txt").unwrap();
+    let input_str = read_to_string("input.txt").unwrap();
     
     let (map_str, instructions_str) = input_str.split_once("\n\n").unwrap();
 
@@ -197,16 +198,14 @@ fn main() {
     let (mut x, mut y): (usize, usize) = (map[0].1.iter().position(|e| !e).unwrap(), 0) ;
     let (mut dir_x, mut dir_y): (i32, i32) = (1, 0);
     for (n, i) in instructions {
-        //println!("{}, {}", n, i);
-        //printmap(&map, (x,y), (dir_x, dir_y));
-        //println!("\n\n");
         for _ in 0..n {
             let patch = patches.iter().position(|p| *p == ((x + map[y].0) / patch_size, y / patch_size)).unwrap();
+            let prev_dir = (dir_x, dir_y);
             let (next_x, next_y) = if dir_x == 0 {
                 let mut next_y = y as i32 + dir_y;
-                let x_shift = map[y].0 as i32 - map[(next_y % map.len() as i32) as usize].0 as i32;
+                let x_shift = map[y].0 as i32 - map[(next_y.rem_euclid(map.len() as i32)) as usize].0 as i32;
                 let mut next_x = x as i32 + x_shift;
-                if dir_y == -1 && next_y < 0 || (next_x < 0 || next_x >= map[next_y as usize].1.len() as i32) {
+                if dir_y == -1 && next_y < 0 || (next_y < map.len() as i32 && (next_x < 0 || next_x >= map[next_y as usize].1.len() as i32)) {
                     let next_patch = edges[patch][3];
                     let rev = edges[next_patch].iter().position(|p| *p == patch).unwrap();
                     let rotate_times = 3 - rev + if (3-rev) % 2 == 0 { 2 } else { 0 };
@@ -216,6 +215,7 @@ fn main() {
                     let relative_coords = ((x + map[y].0) - patches[patch].0 * patch_size, patch_size - 1);
                     let new_relative_coords = rotate_coords_right(relative_coords, patch_size, rotate_times);
                     let new_y = (patches[next_patch].1 * patch_size + new_relative_coords.1) as i32;
+                    println!("!");
                     (next_x, next_y) = ((patches[next_patch].0 * patch_size + new_relative_coords.0) as i32 - map[new_y as usize].0 as i32,
                                         new_y);
                 }
@@ -229,6 +229,7 @@ fn main() {
                     let relative_coords = ((x + map[y].0) - patches[patch].0 * patch_size, 0);
                     let new_relative_coords = rotate_coords_right(relative_coords, patch_size, rotate_times);
                     let new_y = (patches[next_patch].1 * patch_size + new_relative_coords.1) as i32;
+                    println!("!");
                     (next_x, next_y) = ((patches[next_patch].0 * patch_size + new_relative_coords.0) as i32 - map[new_y as usize].0 as i32,
                                         new_y);
                 }
@@ -241,36 +242,46 @@ fn main() {
                     for _ in 0..rotate_times {
                         (dir_x, dir_y) = (-dir_y, dir_x);
                     }
-                    let relative_coords = (patch_size - 1, y - patches[patch].1);
+                    let relative_coords = (patch_size - 1, y - patches[patch].1 * patch_size);
                     let new_relative_coords = rotate_coords_right(relative_coords, patch_size, rotate_times);
                     let new_y = (patches[next_patch].1 * patch_size + new_relative_coords.1) as usize;
+                    println!("!");
                     ((patches[next_patch].0 * patch_size + new_relative_coords.0) as usize - map[new_y].0, new_y)
-                } else if x == map[y].1.len() - 1 && dir_x == 1 {
+                } else if x >= map[y].1.len() - 1 && dir_x == 1 {
                     let next_patch = edges[patch][0];
                     let rev = edges[next_patch].iter().position(|p| *p == patch).unwrap();
                     let rotate_times = (0 - rev as i32 + if (0-rev as i32) % 2 == 0 { 2 } else { 0 }).rem_euclid(4) as usize;
                     for _ in 0..rotate_times {
                         (dir_x, dir_y) = (-dir_y, dir_x);
                     }
-                    let relative_coords = (0, y - patches[patch].1);
+                    let relative_coords = (0, y - patches[patch].1 * patch_size);
                     let new_relative_coords = rotate_coords_right(relative_coords, patch_size, rotate_times);
                     let new_y = (patches[next_patch].1 * patch_size + new_relative_coords.1) as usize;
+                    println!("!");
                     ((patches[next_patch].0 * patch_size + new_relative_coords.0) as usize - map[new_y].0, new_y)
                 } else {
                     ((x as i32 + dir_x) as usize, y)
                 }
             };
             if map[next_y].1[next_x] {
+                dir_x = prev_dir.0;
+                dir_y = prev_dir.1;
                 break;
             } else {
                 (x, y) = (next_x, next_y);
             }
+            //println!("{}, {}", n, i);
+            //printmap(&map, (x,y), (dir_x, dir_y));
+            //println!("\n\n");
         }
         if i == 'R' {
             (dir_x, dir_y) = (-dir_y, dir_x);
         } else if i == 'L' {
             (dir_x, dir_y) = (dir_y, -dir_x);
         }
+        println!("{}, {}", n, i);
+        printmap(&map, (x,y), (dir_x, dir_y));
+        println!("\n\n");
     }
     let facing = match (dir_x,dir_y) {
         (1,0) => 0,
