@@ -1,4 +1,4 @@
-use std::{fs::read_to_string, collections::{BTreeSet, BTreeMap}};
+use std::{fs::read_to_string, collections::{HashSet, HashMap}};
 
 enum Direction {
     North,
@@ -28,7 +28,7 @@ impl Direction {
 
 fn main() {
     let input_str = read_to_string("input.txt").unwrap();
-    let mut positions: BTreeSet<(i32, i32)> = BTreeSet::new();
+    let mut positions: HashSet<(i32, i32)> = HashSet::new();
     for (y, l) in input_str.lines().filter(|l| !l.is_empty()).enumerate() {
         for (x, _) in l.chars().enumerate().filter(|c| c.1 == '#') {
             positions.insert((x as i32, y as i32));
@@ -43,7 +43,7 @@ fn main() {
     //while has_new {
     for _ in 0..10 {
         has_new = false;
-        let mut new_positions: BTreeMap<(i32, i32), Vec<(i32, i32)>> = BTreeMap::new();
+        let mut new_positions: HashMap<(i32, i32), Vec<(i32, i32)>> = HashMap::new();
         for p in positions.iter() {
             let mut no_move = true;
             'yloop:
@@ -118,7 +118,7 @@ fn main() {
     println!("{}", result);
 
 
-    let mut positions: BTreeSet<(i32, i32)> = BTreeSet::new();
+    let mut positions: HashSet<(i32, i32)> = HashSet::new();
     for (y, l) in input_str.lines().filter(|l| !l.is_empty()).enumerate() {
         for (x, _) in l.chars().enumerate().filter(|c| c.1 == '#') {
             positions.insert((x as i32, y as i32));
@@ -135,7 +135,7 @@ fn main() {
     while has_new {
         round_counter += 1;
         has_new = false;
-        let mut new_positions: BTreeMap<(i32, i32), Vec<(i32, i32)>> = BTreeMap::new();
+        let mut new_positions: HashMap<(i32, i32), Vec<(i32, i32)>> = HashMap::new();
         for p in positions.iter() {
             let mut no_move = true;
             'yloop:
