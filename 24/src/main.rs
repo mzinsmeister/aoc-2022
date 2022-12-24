@@ -10,8 +10,8 @@ struct PosState {
 // The priority queue depends on `Ord`.
 impl Ord for PosState {
     fn cmp(&self, other: &Self) -> Ordering {
-        let self_dist = self.end.0.abs_diff(self.pos.0) + self.end.1.abs_diff(self.pos.1);
-        let other_dist = self.end.0.abs_diff(other.pos.0) + self.end.1.abs_diff(other.pos.1);
+        let self_dist = self.end.0.abs_diff(self.pos.0) + self.end.1.abs_diff(self.pos.1) + self.time;
+        let other_dist = self.end.0.abs_diff(other.pos.0) + self.end.1.abs_diff(other.pos.1) + other.time;
         other_dist.cmp(&self_dist).then_with(|| other.time.cmp(&self.time))
     }
 }
@@ -101,7 +101,7 @@ fn search(state_cache: &mut Vec<State>, start_pos: (usize, usize), end_pos: (usi
         assert!(pos_state.pos.1 < state.height - 1 || pos_state.pos.0 == state.width - 2);
         assert!(state_cache[pos_state.time].check_position(pos_state.pos));
         if pos_state.pos == end_pos {
-            current_min = min(current_min, pos_state.time);
+            return pos_state.time;
         }
         if pos_state.time < current_min {
             //println!("{},{}   {}", pos_state.pos.0, pos_state.pos.1, pos_state.time);
